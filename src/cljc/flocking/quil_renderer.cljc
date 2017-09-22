@@ -23,7 +23,13 @@
           (q/stroke 255 0 0)
           (q/ellipse 0 0 (* 2 rate) (* 2 rate)))))))
 
-(defn draw-boid [{[pos [vx vy]] :state :keys [width height color] :as boid}]
+(defn draw-boid [{[pos [vx vy]] :state :keys [width height color target-pos predator-pos] :as boid}]
+  (when target-pos
+    (q/with-stroke
+      [0 0 255]
+      (q/with-fill
+        [0 0 255]
+        (apply q/ellipse (conj target-pos 0.5 0.5)))))
   (let [tw (* 0.5 width) th (* 0.5 height)]
     (q/with-translation
       pos
@@ -36,7 +42,36 @@
           (apply q/stroke color)
           (q/triangle (- tw) (- th) 0 th tw (- th)))))))
 
-(defn draw [{:keys [world boids]}]
+(defn draw-food [[x y]]
+  (q/with-fill
+    [255 0 0]
+    (q/with-stroke
+      [255 0 0]
+      (q/ellipse x y 0.5 0.5))))
+
+(defn intro-screen []
+  (do
+    (q/push-matrix)
+    (q/reset-matrix)
+    (q/background 0 0 0)
+    (q/text "Welcome to Lunar Lander!" 30 40)
+    (q/text "Press Enter/Return key to play!" 30 50)
+    (q/text "Press left and right arrow keys to rotate." 30 60)
+    (q/text "Press 'f' or space to engage rocket." 30 70)
+    (q/text "Win by making a gentle landing (<= 10 m/s)" 30 80)
+    (q/text "with 0 rotation on one of the platforms." 30 90)
+    (q/text "Leaving the screen to the left, right, or top will cause you to lose." 30 100)
+    (q/pop-matrix)))
+
+(defn render-behavior [{[boid] :boids :keys [active-behavior]}]
+  (when boid
+    (do (q/fill 255)
+        (doseq [[b n] (map vector (sort (keys (:behaviors boid))) (range))]
+          (do
+            (if (= b active-behavior) (q/fill 255 0 0) (q/fill 255))
+            (q/text (str (name b) ": " (get-in boid [:behaviors b :strength])) 10 (* (inc n) 20)))))))
+
+(defn draw [{:keys [world boids food] :as state}]
   (let [{ :keys [minx maxx miny maxy] } world
         dx (- maxx minx) dy (- maxy miny)
         max-world-dim (max dx dy)
@@ -44,8 +79,10 @@
         min-screen-dim (min w h)]
     (do
       (q/background 0 0 0)
+      (render-behavior state)
       (q/translate (* 0.5 w) (* 0.5 h))
       (q/scale 1 -1)
       (q/scale (/ min-screen-dim max-world-dim))
       (q/stroke-weight (/ max-world-dim min-screen-dim 0.5))
+      ;(doseq [f food] (draw-food f))
       (doseq [boid boids] (draw-boid boid)))))

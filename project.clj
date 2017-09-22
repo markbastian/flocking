@@ -4,7 +4,7 @@
   :url "https://github.com/markbastian/flocking"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.9.0-beta1"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha13"]
                  [org.clojure/clojurescript "1.9.908"]
                  [numerics "0.1.0-SNAPSHOT"]
                  [quil "2.6.0"]

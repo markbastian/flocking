@@ -22,6 +22,8 @@
 (defmethod steer :separate [_ behavior boid flock] (rules/separate behavior boid flock))
 (defmethod steer :align [_ behavior boid flock] (rules/align behavior boid flock))
 (defmethod steer :cohere [_ behavior boid flock] (rules/cohere behavior boid flock))
+(defmethod steer :seek [_ behavior boid flock] (rules/seek behavior boid flock))
+(defmethod steer :flee [_ behavior boid flock] (rules/flee behavior boid flock))
 
 (defn sim-boid [{:keys [state max-speed behaviors] :as boid } world-state dt]
   (let [[pos vel] state

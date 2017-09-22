@@ -37,6 +37,16 @@
 (defn cohere [{:keys [strength] } {:keys [state]} {:keys [average-position] }]
   (weighted-vec (state 0) strength average-position))
 
+(defn seek [{:keys [strength]} {:keys [state target-pos]} _]
+  (if target-pos
+    (weighted-vec (state 0) strength target-pos)
+    [0 0]))
+
+(defn flee [{:keys [strength]} {:keys [state predator-pos]} _]
+  (if predator-pos
+    (weighted-vec predator-pos strength (state 0))
+    [0 0]))
+
 (defn gen-wander []
   { :direction (* 2 Math/PI (Math/random))
    :rate (Math/random)
@@ -66,5 +76,7 @@
                 :wander (assoc (gen-wander) :strength 10 :debug false)
                 :separate { :range 2 :strength 10 }
                 :align { :strength 10 }
-                :cohere { :strength 50 }}})
+                :cohere { :strength 50 }
+                :seek { :strength 0 }
+                :flee { :strength 0 }}})
      :food (repeatedly 20 #(gen-pos world))}))
